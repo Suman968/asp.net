@@ -1,0 +1,38 @@
+name: Build and Publish Artifact
+
+on:
+  push:
+    branches:
+      - master  # Use 'master' instead of 'main' for your branch name
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup .NET Core SDK
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '5.x'  # Adjust .NET version as per your application
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build application
+        run: dotnet build --configuration Release
+
+      - name: Publish artifact
+        run: |
+          dotnet publish -c Release -o ./publish
+
+          # Prepare artifact for upload
+          mkdir ./artifact
+          cp -r ./publish ./artifact
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: webapp-artifact
+          path: ./artifact
